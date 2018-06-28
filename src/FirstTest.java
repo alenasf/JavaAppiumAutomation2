@@ -44,7 +44,7 @@ public class FirstTest {
         driver.quit();
     }
 
-    //
+
     @Test
     public void firstTest() {
         waitForElementAndClick(
@@ -163,9 +163,64 @@ public class FirstTest {
                 "Cannot find search result: Java ",
                 15
         );
-        System.out.println("Element present");
+//        System.out.println("Element present");
 
     }
+//    #Ex 3.Test for search -> check results ,then cancel "search results" -> check empty results list
+    @Test
+    public void testCancelSearchAndCheckEmptyList()
+    {
+
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "Cannot find 'Search Wikipedia' input",
+                5
+        );
+
+        waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text,'Search…')]"),
+                "Java",
+                "Cannot find search input",
+                5
+        );
+        WebElement searchResultList = waitForElementPresent(
+                By.id("org.wikipedia:id/search_results_list"),
+                " Cannot find 'Search Result List'",
+                15
+        );
+
+        List<WebElement> searchResults = searchResultList.findElements(By.className("android.widget.LinearLayout"));
+        System.out.println("List size: " + searchResults.size());
+        Assert.assertTrue("There is no search result", searchResults.size() > 0
+        );
+
+        waitForElementAndClear(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Cannot find 'Search Wikipedia' input",
+                5
+        );
+
+        WebElement searchEmptyMessage = waitForElementPresent(
+                By.id("org.wikipedia:id/search_empty_message"),
+                "Cannot find empty message",
+                5
+        );
+        checkTextElement(searchEmptyMessage, "Search and read the free encyclopedia in your language");
+
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "Cannot find close button",
+                5
+        );
+
+        waitForElementNotPresent(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "X is still present on the page",
+                5
+        );
+
+    }
+
 
     private WebElement waitForElementPresent(By by, String error_message, long timeoutinSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutinSeconds);
@@ -212,6 +267,4 @@ public class FirstTest {
         String actual_text = element.getText();
         Assert.assertEquals("Text isn't present on the screen ", expected_text, actual_text);
     }
-
-
 }
