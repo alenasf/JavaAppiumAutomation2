@@ -307,9 +307,11 @@ public class FirstTest {
          5
        );
 
+       String name_of_folder = "Learning programming";
+
        waitForElementAndSendKeys(
                By.id("org.wikipedia:id/text_input"),
-               "Learning programming",
+               name_of_folder,
                "Cannot put text into articles folder input",
                5
        );
@@ -331,7 +333,7 @@ public class FirstTest {
         );
 
         waitForElementAndClick(
-                By.xpath("//*[@text='Learning programming']"),
+                By.xpath("//*[@text='" + name_of_folder + "']"),
                 "Cannot find created folder",
                 5
         );
