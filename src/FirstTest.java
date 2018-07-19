@@ -35,7 +35,9 @@ public class FirstTest {
         capabilities.setCapability("app", "/Users/alenapushniakova/Desktop/JavaAppiumAutomation2/apks/org.wikipedia.apk");
 
         driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+
     }
+
 
     @After
     public void tearDown()
@@ -527,6 +529,34 @@ public class FirstTest {
                 "Cannot find article title immediately "
         );
     }
+// Ex. 5 Тест: сохранение двух статей
+    @Test
+    public void testSaveTwoArticlesAndRemoveOne(){
+        String first_search = "Appium";
+        String first_search_title = "Appium";
+        String second_search = "Java";
+        String second_search_title = "Java";
+        String reading_list_name = "My homework";
+
+//        First Search
+        startSearch(first_search);
+        checkSearchResultAndOpen(first_search_title);
+        addArticleToNewReadingList(reading_list_name);
+        closeArticle();
+
+//        Second Search
+        startSearch(second_search);
+        checkSearchResultAndOpen(second_search_title);
+        addArticleToSavedReadingList(reading_list_name);
+        closeArticle();
+
+//        Delete first article
+        openSavedReadingList(reading_list_name);
+        deleteSavedArticleFromReadingList(first_search_title);
+        checkSearchResultAndOpen(second_search_title);
+
+    }
+
 
 
     private WebElement waitForElementPresent(By by, String error_message, long timeoutinSeconds) {
@@ -656,6 +686,137 @@ public class FirstTest {
             throw new AssertionError(default_message + " " + error_message);
 
         }
+    }
+    private void startSearch(String search_string){
+        waitForElementAndClick(
+                By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                "Cannot find 'Search Wikipedia' input",
+                5
+        );
+
+        waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text,'Search…')]"),
+                search_string,
+                "Cannot find search input",
+                5
+        );
+        waitForElementPresent(
+                By.id("org.wikipedia:id/search_results_list"),
+                "Cannot find search results list",
+                15
+        );
+
+    }
+    private void checkSearchResultAndOpen(String article_title){
+        waitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title']" +
+                        "[@text='" + article_title + "']"),
+                "Cannot find  article in results: '" + article_title + "' ",
+                10
+        );
+
+        WebElement titleElement = waitForElementPresent(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "Cannot find article title",
+                15
+        );
+//       f w i u i
+        checkTextElement(titleElement, article_title);
+    }
+    private void addArticleToNewReadingList(String reading_list_name){
+        waitForElementAndClick(
+                By.xpath("//android.widget.ImageView[@content-desc ='Add this article to a reading list']"),
+                "Cannot find button for adding article to a reading list",
+                5
+        );
+
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/onboarding_button"),
+                "Cannot find the onboarding button",
+                5
+        );
+        waitForElementAndClear(
+                By.id("org.wikipedia:id/text_input"),
+                "Cannot find input field",
+                5
+        );
+
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/text_input"),
+                reading_list_name,
+                "Cannot find input field for new reading list",
+                5
+        );
+        waitForElementAndClick(
+                By.xpath("//*[@text='OK']"),
+                "Cannot press OK button",
+                5
+        );
+        waitForElementNotPresent(
+                By.xpath("//*[@text='OK']"),
+                "OK button still exists",
+                5
+        );
+    }
+
+    private void closeArticle() {
+        waitForElementAndClick(
+                By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+                "Cannot find close article button ",
+                5
+        );
+        waitForElementPresent(
+                By.id("org.wikipedia:id/search_container"),
+                "Cannot find search button"
+        );
+    }
+
+    private void addArticleToSavedReadingList(String reading_list_name){
+
+        waitForElementAndClick(
+                By.xpath("//android.widget.ImageView[@content-desc ='Add this article to a reading list']"),
+                "Cannot find button for adding article to a reading list",5
+            );
+
+        waitForElementAndClick(
+                By.xpath("//android.widget.TextView[@text= '" + reading_list_name + "']"),
+                "Cannot find existing reading list:" + reading_list_name,
+                5
+        );
+
+        waitForElementNotPresent(
+                By.xpath("//android.widget.TextView[@text= '" + reading_list_name + "']"),
+                "Name of saved reading list still exists",
+                5
+            );
+    }
+    private void openSavedReadingList(String reading_list_name){
+        waitForElementAndClick(
+                By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
+                "Cannot find 'My list' button",
+                5
+        );
+        waitForElementPresent(
+                By.xpath("//android.widget.TextView[@text='My lists']"),
+                        "Cannot find 'My list' in the header",
+                5
+        );
+        waitForElementAndClick(
+                By.xpath("//*[@text='" + reading_list_name  + "']"),
+                "Cannot find saved reading list",
+                5
+        );
+    }
+    private void deleteSavedArticleFromReadingList(String article_title){
+        swipeElementToLeft(
+                By.xpath("//*[@text='" + article_title + "']"),
+                "Cannot swipe the article"
+        );
+        waitForElementNotPresent(
+                By.xpath("//*[text='" + article_title +  "']"),
+                "Article title still presents",
+                5
+        );
     }
 }
 
